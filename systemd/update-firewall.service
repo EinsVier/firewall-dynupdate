@@ -1,0 +1,11 @@
+# Service-Datei für das Firewall-Update-Skript
+# Speicherort: /etc/systemd/system/update-firewall.service
+
+[Unit]
+Description=Update Firewall with dynamic IPs
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/update_firewall.sh

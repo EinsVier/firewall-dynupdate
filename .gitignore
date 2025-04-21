@@ -1,0 +1,17 @@
+# Ignoriere sensible oder generierte Dateien
+
+# Persönliche Konfiguration
+.env
+
+# Logs
+*.log
+
+# Backup-Dateien
+*~
+
+# systemd temporäre Dateien
+*.swp
+
+# Sonstiges
+.DS_Store
+Thumbs.db

@@ -1,0 +1,11 @@
+# Logrotation für das Firewall-Update-Skript
+# /etc/logrotate.d/update-firewall
+#     
+/var/log/update-firewall.log {
+    weekly
+    rotate 4
+    compress
+    missingok
+    notifempty
+    create 600 root root
+}

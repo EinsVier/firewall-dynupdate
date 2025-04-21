@@ -1,0 +1,13 @@
+# Timer-Datei für das Firewall-Update-Skript
+# Speicherort: /etc/systemd/system/update-firewall.timer
+
+[Unit]
+Description=Run firewall update every 10 minutes
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=10min
+Persistent=true
+
+[Install]
+WantedBy=timers.target
