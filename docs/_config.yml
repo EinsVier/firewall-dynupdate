@@ -1,0 +1,3 @@
+theme: jekyll-theme-minimal
+title: firewall-dynupdate
+description: Automatisches Firewall-Whitelisting basierend auf dynamischer DNS-Auflösung
