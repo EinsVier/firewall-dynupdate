@@ -1,11 +1,10 @@
 #!/bin/bash
 
 # ===========================
-# Dynamisches Firewall-Update via DNS-Auflösung
+# Dynamisches Firewall-Update via DNS-Auflösung (.env konfigurierbar)
 # ===========================
-# Dieses Skript aktualisiert die Firewall-Regeln basierend auf den IP-Adressen
-# von Hosts, die in einer .env-Datei definiert sind. Es wird nur aktualisiert,
-# .env-Datei einlesen (im selben Verzeichnis wie das Skript)
+
+# .env-Datei einlesen
 ENV_FILE="$(dirname "$0")/../.env"
 if [ -f "$ENV_FILE" ]; then
     source "$ENV_FILE"
@@ -43,15 +42,19 @@ if ! cmp -s "$CURRFILE" "$TMPFILE"; then
     # Alte Regeln entfernen
     OLD_IPS=$(cat "$TMPFILE" 2>/dev/null)
     for IP in $OLD_IPS; do
-        sudo firewall-cmd --permanent --zone=$ZONE \
-          --remove-rich-rule="rule family='ipv4' source address='$IP' port port=$PORT protocol=tcp accept" >> "$LOGFILE" 2>&1
+        for PORT in "${PORTS[@]}"; do
+            sudo firewall-cmd --permanent --zone=$ZONE \
+              --remove-rich-rule="rule family='ipv4' source address='$IP' port port=$PORT protocol=tcp accept" >> "$LOGFILE" 2>&1
+        done
     done
 
     # Neue Regeln setzen
     NEW_IPS=$(cat "$CURRFILE")
     for IP in $NEW_IPS; do
-        sudo firewall-cmd --permanent --zone=$ZONE \
-          --add-rich-rule="rule family='ipv4' source address='$IP' port port=$PORT protocol=tcp accept" >> "$LOGFILE" 2>&1
+        for PORT in "${PORTS[@]}"; do
+            sudo firewall-cmd --permanent --zone=$ZONE \
+              --add-rich-rule="rule family='ipv4' source address='$IP' port port=$PORT protocol=tcp accept" >> "$LOGFILE" 2>&1
+        done
     done
 
     # Firewall neuladen
