@@ -1,7 +1,7 @@
 # Ignoriere sensible oder generierte Dateien
 
 # Persönliche Konfiguration
-.env
+#.env
 
 # Logs
 *.log
