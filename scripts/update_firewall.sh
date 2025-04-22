@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euo pipefail
 
 # ===========================
 # Dynamisches Firewall-Update via DNS-Auflösung (.env konfigurierbar)
@@ -6,10 +7,17 @@
 
 # .env-Datei einlesen
 ENV_FILE="$(dirname "$0")/../.env"
+# shellcheck source=../.env
 if [ -f "$ENV_FILE" ]; then
     source "$ENV_FILE"
 else
     echo "Fehler: .env-Datei nicht gefunden unter $ENV_FILE"
+    exit 1
+fi
+
+# Root-Prüfung
+if [[ $EUID -ne 0 ]]; then
+    echo "Dieses Skript muss als root ausgeführt werden." >&2
     exit 1
 fi
 
@@ -22,9 +30,9 @@ LOGFILE="/var/log/update-firewall.log"
 echo "[$(date)] Start: Firewall-Regeln aktualisieren" >> "$LOGFILE"
 
 # Neues IP-File vorbereiten
-> "$CURRFILE"
+: > "$CURRFILE"
 
-# IPs der Hosts ermitteln
+# shellcheck disable=SC2153
 for HOST in "${HOSTS[@]}"; do
     IP=$(dig +short "$HOST" | tail -n1)
     if [[ $IP =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
@@ -42,23 +50,25 @@ if ! cmp -s "$CURRFILE" "$TMPFILE"; then
     # Alte Regeln entfernen
     OLD_IPS=$(cat "$TMPFILE" 2>/dev/null)
     for IP in $OLD_IPS; do
+        # shellcheck disable=SC2153
         for PORT in "${PORTS[@]}"; do
-            sudo firewall-cmd --permanent --zone=$ZONE \
-              --remove-rich-rule="rule family='ipv4' source address='$IP' port port=$PORT protocol=tcp accept" >> "$LOGFILE" 2>&1
+            sudo firewall-cmd --permanent --zone="$ZONE" \
+              --remove-rich-rule="rule family='ipv4' source address='$IP' port port=$PORT protocol=tcp accept" | tee -a "$LOGFILE"
         done
     done
 
     # Neue Regeln setzen
     NEW_IPS=$(cat "$CURRFILE")
     for IP in $NEW_IPS; do
+        # shellcheck disable=SC2153
         for PORT in "${PORTS[@]}"; do
-            sudo firewall-cmd --permanent --zone=$ZONE \
-              --add-rich-rule="rule family='ipv4' source address='$IP' port port=$PORT protocol=tcp accept" >> "$LOGFILE" 2>&1
+            sudo firewall-cmd --permanent --zone="$ZONE" \
+              --add-rich-rule="rule family='ipv4' source address='$IP' port port=$PORT protocol=tcp accept" | tee -a "$LOGFILE"
         done
     done
 
     # Firewall neuladen
-    sudo firewall-cmd --reload >> "$LOGFILE" 2>&1
+    sudo firewall-cmd --reload | tee -a "$LOGFILE"
 
     # Neue IPs als Referenz speichern
     cp "$CURRFILE" "$TMPFILE"
