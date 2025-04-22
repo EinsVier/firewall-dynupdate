@@ -2,10 +2,6 @@
 
 Willkommen zur offiziellen Dokumentation des Projekts **firewall-dynupdate** 🎯
 
-<p align="center">
-  <img src="assets/logo.png" alt="Projektlogo" width="200" />
-</p>
-
 > [Zurück zum Repository ←](https://github.com/EinsVier/firewall-dynupdate)
 
 Dieses Tool erlaubt dir, automatisch dynamisch aufgelöste IPs (z. B. von DynDNS-Hosts) in deine `firewalld`-Konfiguration aufzunehmen – ideal für Heimserver, NAS, VPS, Container und alles dazwischen.
@@ -19,6 +15,8 @@ Dieses Tool erlaubt dir, automatisch dynamisch aufgelöste IPs (z. B. von DynD
 - Logging + Logrotate-Unterstützung
 - Konfiguration per `.env`
 - GitHub Actions mit ShellCheck (CI)
+- Robustheit durch `set -euo pipefail` und Root-Prüfung
+- Logging via `tee` statt unsicheren Umleitungen
 
 ## ⚡ Schnellstart
 
@@ -36,7 +34,6 @@ sudo cp systemd/*.service systemd/*.timer /etc/systemd/system/
 sudo systemctl daemon-reload
 sudo systemctl enable --now update-firewall.timer
 ```
-![Beispielausgabe](assets/screenshot.png)
 
 ## 📚 Dokumentation
 
