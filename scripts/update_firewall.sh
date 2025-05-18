@@ -6,7 +6,7 @@ set -euo pipefail
 # ===========================
 
 # .env-Datei einlesen
-ENV_FILE="$(dirname "$0")/../.env"
+ENV_FILE="$(dirname "$0")/.env"
 # shellcheck source=../.env
 if [ -f "$ENV_FILE" ]; then
     source "$ENV_FILE"
